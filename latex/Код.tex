@@ -1,0 +1,1136 @@
+\appendix{Фрагменты исходного кода программы}
+
+\lstdefinestyle{c#}{
+	language=[Sharp]C,
+	basicstyle=\ttfamily\small,
+	keywordstyle=\color{blue},
+	stringstyle=\color{red},
+	commentstyle=\color{green},
+	morecomment=[l][\color{magenta}]{\#},
+	numbers=left,
+	numberstyle=\tiny\color{gray},
+	stepnumber=1,
+	numbersep=10pt,
+	backgroundcolor=\color{yellow!20},
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	frame=single,
+	tabsize=4,
+	captionpos=b,
+	breaklines=true,
+	breakatwhitespace=false,
+	escapeinside={\%*}{*)},
+	morekeywords={public, class, static, void, using, namespace, new, get, set, return, if, else, while, for, foreach, in, int, string, bool, true, false}
+}
+
+ChatDbContext.cs
+\begin{lstlisting}[style=c#]
+	using System;
+	using System.Collections.Generic;
+	using Microsoft.EntityFrameworkCore;
+	using ChatApp.Models;
+	
+	namespace ChatApp;
+	
+	public partial class ChatDbContext : DbContext
+	{
+		public ChatDbContext()
+		{
+		}
+		
+		public ChatDbContext(DbContextOptions<ChatDbContext> options)
+		: base(options)
+		{
+		}
+		
+		public virtual DbSet<Chat> Chats { get; set; }
+		
+		public virtual DbSet<Media> Media { get; set; }
+		
+		public virtual DbSet<Message> Messeges { get; set; }
+		
+		public virtual DbSet<User> Users { get; set; }
+		
+		public virtual DbSet<UserRole> UserRoles { get; set; }
+		
+		public virtual DbSet<UsersInChats> UsersInChats { get; set; }
+		
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		=> optionsBuilder.UseNpgsql("Name=ConnectionStrings:DBConnection");
+		
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<Chat>(entity =>
+			{
+				entity.HasKey(e => e.ChatId).HasName("chats_pkey");
+				
+				entity.ToTable("chats");
+				
+				entity.Property(e => e.ChatId).HasColumnName("chat_id");
+				entity.Property(e => e.CreationDate).HasColumnName("creation_date");
+				entity.Property(e => e.Name)
+				.HasMaxLength(128)
+				.HasColumnName("name");
+			});
+			
+			modelBuilder.Entity<Media>(entity =>
+			{
+				entity.HasKey(e => e.MediaId).HasName("media_pkey");
+				
+				entity.ToTable("media");
+				
+				entity.Property(e => e.MediaId).HasColumnName("media_id");
+				entity.Property(e => e.Location).HasColumnName("location");
+				entity.Property(e => e.MessegeId).HasColumnName("messege_id");
+				
+				entity.HasOne(d => d.Messege).WithMany(p => p.Media)
+				.HasForeignKey(d => d.MessegeId)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("messege_id");
+			});
+			
+			modelBuilder.Entity<Message>(entity =>
+			{
+				entity.HasKey(e => e.MessageId).HasName("messeges_pkey");
+				
+				entity.ToTable("messeges");
+				
+				entity.Property(e => e.MessageId).HasColumnName("messege_id");
+				entity.Property(e => e.ChatId).HasColumnName("chat_id");
+				entity.Property(e => e.Content).HasColumnName("content");
+				entity.Property(e => e.UserId).HasColumnName("user_id");
+				
+				entity.HasOne(d => d.Chat).WithMany(p => p.Messeges)
+				.HasForeignKey(d => d.ChatId)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("chat_fkey");
+				
+				entity.HasOne(d => d.User).WithMany(p => p.Messeges)
+				.HasForeignKey(d => d.UserId)
+				.OnDelete(DeleteBehavior.SetNull)
+				.HasConstraintName("user_fkey");
+			});
+			
+			modelBuilder.Entity<User>(entity =>
+			{
+				entity.HasKey(e => e.UserId).HasName("users_pkey");
+				
+				entity.ToTable("users");
+				
+				entity.Property(e => e.UserId).HasColumnName("user_id");
+				entity.Property(e => e.Login)
+				.HasMaxLength(64)
+				.HasColumnName("login");
+				entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+				entity.Property(e => e.PasswordSalt).HasColumnName("password_salt");
+			});
+			
+			modelBuilder.Entity<UserRole>(entity =>
+			{
+				entity.HasKey(e => e.RoleId).HasName("user_role_pkey");
+				
+				entity.ToTable("user_role");
+				
+				entity.Property(e => e.RoleId)
+				.ValueGeneratedNever()
+				.HasColumnName("role_id");
+				entity.Property(e => e.RoleName)
+				.HasMaxLength(15)
+				.HasColumnName("role_name");
+			});
+			
+			modelBuilder.Entity<UsersInChats>(entity =>
+			{
+				entity.HasKey(e => new { e.UserId, e.ChatId }).HasName("users_in_chats_pkey");
+				
+				entity.ToTable("users_in_chats");
+				
+				entity.Property(e => e.UserId).HasColumnName("user_id");
+				entity.Property(e => e.ChatId).HasColumnName("chat_id");
+				entity.Property(e => e.UserRole).HasColumnName("user_role");
+				
+				entity.HasOne(d => d.Chat).WithMany(p => p.UsersInChats)
+				.HasForeignKey(d => d.ChatId)
+				.HasConstraintName("chat_fkey");
+				
+				entity.HasOne(d => d.User).WithMany(p => p.UsersInChats)
+				.HasForeignKey(d => d.UserId)
+				.HasConstraintName("user_fkey");
+				
+				entity.HasOne(d => d.UserRoleNavigation).WithMany(p => p.UsersInChats)
+				.HasForeignKey(d => d.UserRole)
+				.OnDelete(DeleteBehavior.ClientSetNull)
+				.HasConstraintName("user_role_fkey");
+			});
+			
+			OnModelCreatingPartial(modelBuilder);
+		}
+		
+		partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+	}	
+\end{lstlisting}
+
+AuthController.cs
+\begin{lstlisting}[style=c#]
+	using System.Security.Cryptography;
+	using System.Text;
+	using AuthService.Models;
+	using AuthService.Models.DTOs;
+	using AuthService.Models.Requsets;
+	using AuthService.Services;
+	using AutoMapper;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.EntityFrameworkCore;
+	using RandomString4Net;
+	
+	namespace AuthService.Controllers;
+	
+	[Route("api/[controller]")]
+	[ApiController]
+	public class AuthController : ControllerBase
+	{
+		private readonly ChatDbContext dbContext;
+		private readonly JwtService jwtService;
+		private readonly IMapper mapper;
+		public AuthController(ChatDbContext dbContext, JwtService jwtService, IMapper mapper)
+		{
+			this.dbContext = dbContext;
+			this.jwtService = jwtService;
+			this.mapper = mapper;
+		}
+		
+		[HttpPost("signup")]
+		public async Task<IActionResult> SignUp(AccountRequest regData)
+		{
+			if (dbContext.Users.SingleOrDefault(u => u.Login == regData.Login) != null)
+			{
+				return Conflict("User already exist");
+			}
+			string salt = RandomString.GetString(Types.ALPHANUMERIC_MIXEDCASE, 10);
+			
+			byte[] passwordHash = SHA256.HashData(Encoding.UTF8.GetBytes(regData.Password + salt));
+			
+			User newUser = new User
+			{
+				Login = regData.Login,
+				PasswordHash = passwordHash,
+				PasswordSalt = Encoding.UTF8.GetBytes(salt)
+			};
+			
+			await dbContext.Users.AddAsync(newUser);
+			try
+			{
+				await dbContext.SaveChangesAsync();
+			}
+			catch(Exception e)
+			{
+				Console.WriteLine(e);
+				return StatusCode(500);
+			}
+			
+			string refreshToken = jwtService.GetRefreshToken(newUser.UserId);
+			string accessToken = jwtService.GetAccessToken(newUser.UserId, newUser.Login);
+			
+			HttpContext.Response.Headers.Authorization = "Bearer " + accessToken;
+			
+			return Ok("Bearer " + refreshToken);
+		}
+		
+		[HttpPost("signin")]
+		public async Task<IActionResult> SignIn([FromBody]AccountRequest account)
+		{
+			User? user = await dbContext.Users
+			.SingleOrDefaultAsync(u => u.Login == account.Login);
+			
+			if (user == null)
+			{
+				return NotFound();
+			}
+			
+			string salt = Encoding.UTF8.GetString(user.PasswordSalt);
+			
+			byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(account.Password + salt));
+			
+			if (!hash.SequenceEqual(user.PasswordHash))
+			{
+				return Unauthorized();
+			}
+			
+			string refreshToken = jwtService.GetRefreshToken(user.UserId);
+			string accessToken = jwtService.GetAccessToken(user.UserId, user.Login);
+			
+			HttpContext.Response.Headers.Authorization = "Bearer " + accessToken;
+			
+			return Ok("Bearer " + refreshToken);
+		}
+	}
+\end{lstlisting}
+
+TokensController.cs
+\begin{lstlisting}[style=c#]
+	using System.Security.Claims;
+	using AuthService.Models;
+	using AuthService.Models.Requsets;
+	using AuthService.Services;
+	using Microsoft.AspNetCore.Authorization;
+	using Microsoft.AspNetCore.Mvc;
+	
+	[Route("api/[controller]")]
+	[ApiController]
+	[Authorize(AuthenticationSchemes = "RefreshTokenScheme")]
+	public class TokensController : ControllerBase
+	{
+		private readonly ChatDbContext dbContext;
+		private readonly JwtService jwtService;
+		public TokensController(ChatDbContext dbContext, JwtService jwtService)
+		{
+			this.dbContext = dbContext;
+			this.jwtService = jwtService;
+		}
+		
+		[HttpGet("chat-token/{id:int}")]
+		public async Task<IActionResult> GetChatToken(int id)
+		{
+			int userId = Int32.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+			var user = await dbContext.Users.FindAsync(userId);
+			
+			var userChat = user.UsersInChats.SingleOrDefault(x => x.ChatId == id);
+			
+			if (userChat == null)
+			{
+				return Unauthorized();
+			}
+			
+			var role = userChat
+			.UserRoleNavigation;
+			
+			string chatToken = jwtService.GetChatToken(userChat.UserId, userChat.ChatId, role);
+			
+			HttpContext.Response.Headers.Authorization = chatToken;
+			
+			return Ok(new { ChatId = id, UserId = user.UserId, Role = role.RoleName });
+		}
+		
+		[HttpGet("refresh-access-token")]
+		public async Task<IActionResult> RefreshAccessToken()
+		{
+			int id = Int32.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+			var user = await dbContext.Users.FindAsync(id);
+			string token = "Bearer " + jwtService.GetAccessToken(user.UserId, user.Login);
+			
+			HttpContext.Response.Headers.Authorization = token;
+			
+			return NoContent();
+		}
+		
+		[HttpGet("refresh-chat-token")]
+		public async Task<IActionResult> RefreshChatToken(string chatToken)
+		{
+			
+			var claimsPrincipal = (ClaimsPrincipal)HttpContext.Items["ClaimsPrincipal"]!;
+			
+			int id = Int32.Parse(claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+			var user = await dbContext.Users.FindAsync(id);
+			
+			int chatId = Int32.Parse(claimsPrincipal.FindFirst("chatId")?.Value!);
+			
+			var userChatInfo = user?.UsersInChats.Single(item => item.ChatId == chatId);
+			
+			string newToken = jwtService.GetChatToken(id, userChatInfo.ChatId, userChatInfo.UserRoleNavigation);
+			
+			return Ok(newToken);
+		}
+	}
+\end{lstlisting}
+
+JwtService.cs
+\begin{lstlisting}[style=c#]
+	using System.IdentityModel.Tokens.Jwt;
+	using System.Security.Claims;
+	using System.Text;
+	using AuthService.Models;
+	using AuthService.Models.Requsets;
+	using Microsoft.IdentityModel.Tokens;
+	
+	namespace AuthService.Services;
+	
+	public class JwtService
+	{
+		private readonly IConfiguration configuration;
+		
+		public JwtService(IConfiguration config)
+		{
+			configuration = config;
+		}
+		
+		public string GetAccessToken(int id, string login)
+		{
+			var tokenHandler = new JwtSecurityTokenHandler();
+			byte[] secret = Encoding.UTF8.GetBytes(configuration["JwtSettings:AppKey"]!);
+			
+			var tokenDescriptor = new SecurityTokenDescriptor
+			{
+				Subject = new ClaimsIdentity(new Claim[]
+				{
+					new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+					new Claim(ClaimTypes.Name, login)
+				}),
+				IssuedAt = DateTime.Now,
+				Issuer = configuration["JwtSettings:Issuer"],
+				Expires = DateTime.Now.AddMinutes(30),
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256)
+			};
+			
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+			
+			return tokenHandler.WriteToken(token);
+		}
+		
+		public string GetRefreshToken(int id)
+		{
+			var tokenHandler = new JwtSecurityTokenHandler();
+			byte[] secret = Encoding.UTF8.GetBytes(configuration["JwtSettings:AppKey"]!);
+			
+			var tokenDescriptor = new SecurityTokenDescriptor
+			{
+				Subject = new ClaimsIdentity(
+				[
+				new Claim(ClaimTypes.NameIdentifier, id.ToString()),
+				]),
+				Issuer = configuration["JwtSettings:Issuer"],
+				IssuedAt = DateTime.Now,
+				Expires = DateTime.Now.AddDays(1),
+				SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256)
+			};
+			
+			var token = tokenHandler.CreateToken(tokenDescriptor);
+			
+			return tokenHandler.WriteToken(token);
+		}
+		
+		public string GetChatToken(int userId, int chatId, UserRole userRole)
+		{
+			byte[] secret = Encoding.UTF8.GetBytes(configuration["JwtSettings:ChatsKey"]!);
+			
+			var claims = new List<Claim>
+			{
+				new Claim(type: ClaimTypes.NameIdentifier, value: userId.ToString()),
+				new Claim(type: "chatId", value: chatId.ToString()),
+				new Claim(type: ClaimTypes.Role, value: userRole.RoleName)
+			};
+			
+			var key = new SymmetricSecurityKey(secret);
+			var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+			
+			var token = new JwtSecurityToken(
+			issuer: configuration["JwtSettings:Issuer"],
+			claims: claims,
+			expires: DateTime.Now.AddMinutes(30),
+			signingCredentials: creds);
+			
+			return new JwtSecurityTokenHandler().WriteToken(token);
+		}
+	}
+\end{lstlisting}
+
+ChatController.cs
+\begin{lstlisting}[style=c#]
+	using System.Security.Claims;
+	using AutoMapper;
+	using ChatApp;
+	using ChatApp.Models;
+	using ChatApp.Models.Requests;
+	using Microsoft.AspNetCore.Authorization;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.SignalR;
+	
+	
+	[Route("api/[controller]")]
+	[ApiController]
+	[Authorize]
+	[GetIdentifiersFilter]
+	public class ChatController : Controller
+	{
+		private readonly ChatDbContext dbContext;
+		private readonly IHubContext<ChatHub> hubContext;
+		private readonly IMapper mapper;
+		
+		public ChatController(ChatDbContext dbContext, IHubContext<ChatHub> hubContext, IMapper mapper)
+		{
+			this.dbContext = dbContext;
+			this.hubContext = hubContext;
+			this.mapper = mapper;
+		}
+		
+		[HttpPost("send-message")]
+		public async Task<IActionResult> SendMessage([FromBody] SendMessageRequest newMessage)
+		{
+			int userId = (int)HttpContext.Items["UserId"]!;
+			int chatId = (int)HttpContext.Items["ChatId"]!;
+			
+			Chat chat = await dbContext.Chats.FindAsync(chatId);
+			User user = await dbContext.Users.FindAsync(userId);
+			
+			Message message = new Message
+			{
+				ChatId = chatId,
+				UserId = userId,
+				Content = newMessage.Content,
+				Chat = chat,
+				User = user
+			};
+			
+			await dbContext.Messeges.AddAsync(message);
+			chat.Messeges.Add(message);
+			
+			await dbContext.SaveChangesAsync();
+			
+			await hubContext.Clients
+			.Group(chat.Name)
+			.SendAsync("NewMessage", newMessage.Content);
+			
+			return Ok();
+		}
+		
+		[HttpDelete("delete-message")]
+		public async Task<IActionResult> DeleteMessage([FromBody] DeleteMessageRequest toDelete)
+		{
+			int chatId = (int)HttpContext.Items["ChatId"]!;
+			
+			Chat chat = await dbContext.Chats.FindAsync(chatId);
+			Message message = await dbContext.Messeges.FindAsync(toDelete.MessageId);
+			
+			chat.Messeges.Remove(message);
+			dbContext.Messeges.Remove(message);
+			
+			await dbContext.SaveChangesAsync();
+			
+			await hubContext.Clients
+			.Group(chat.Name)
+			.SendAsync("NewMessage", toDelete.MessageId);
+			
+			return Ok();
+		}
+		
+		[HttpGet("messages")]
+		public async Task<IActionResult> GetMesseges()
+		{
+			int chatId = (int)HttpContext.Items["ChatId"]!;
+			
+			Chat? chat = await dbContext.Chats.FindAsync(chatId);
+			
+			return Ok(chat.Messeges);
+		}
+		
+		[HttpGet("users")]
+		public async Task<IActionResult> GetUsers()
+		{
+			int chatId = (int)HttpContext.Items["ChatId"]!;
+			
+			Chat? chat = await dbContext.Chats.FindAsync(chatId);
+			
+			var users = chat.UsersInChats
+			.Select((item) => item.User)
+			.ToList();
+			
+			return Ok(users);        
+		}
+		
+		[HttpDelete("delete-user")]
+		public async Task<IActionResult> DeleteUser([FromBody] DeleteUserRequest toDelete)
+		{
+			int chatId = (int)HttpContext.Items["ChatId"]!;
+			
+			Chat? chat = await dbContext.Chats.FindAsync(chatId);
+			UsersInChats userInChat = chat.UsersInChats.Single((item) => item.UserId == toDelete.UserId);
+			
+			chat.UsersInChats.Remove(userInChat);
+			dbContext.UsersInChats.Remove(userInChat);
+			
+			await dbContext.SaveChangesAsync();
+			
+			await hubContext.Clients
+			.Group(chat.Name)
+			.SendAsync("UserDeleted", userInChat.User.Login);
+			
+			return Ok();
+		}
+	}
+\end{lstlisting}
+
+ChatsController.cs
+\begin{lstlisting}[style=c#]
+	using System.Security.Claims;
+	using AutoMapper;
+	using ChatApp.Models;
+	using ChatApp.Models.Requests;
+	using ChatApp.Models.DTOs;
+	using Microsoft.AspNetCore.Authorization;
+	using Microsoft.AspNetCore.Mvc;
+	
+	namespace ChatApp.Controllers
+	{
+		
+		[Route("/api/[controller]")]
+		[ApiController]
+		public class ChatsController : ControllerBase
+		{
+			private readonly ChatDbContext dbContext;
+			private readonly IMapper mapper;
+			public ChatsController(ChatDbContext dbContext, IMapper mapper)
+			{
+				this.dbContext = dbContext;
+				this.mapper = mapper;
+			}
+			
+			[Authorize]
+			[HttpPost]
+			public async Task<IActionResult> AddNewChat([FromBody] NewChatRequest request)
+			{
+				Chat newChat = new Chat
+				{
+					Name = request.ChatName,
+					CreationDate = DateOnly.FromDateTime(DateTime.Now)
+				};
+				
+				await dbContext.Chats.AddAsync(newChat);
+				await dbContext.SaveChangesAsync();
+				
+				int userId = Int32.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+				var user = await dbContext.Users.FindAsync(userId)!;
+				
+				await dbContext.UsersInChats.AddAsync(new UsersInChats
+				{
+					User = user,
+					UserId = user.UserId,
+					Chat = newChat,
+					ChatId = newChat.ChatId,
+					UserRole = (int)UserRolesEnum.Admin
+				});
+				
+				await dbContext.SaveChangesAsync();
+				
+				return Ok(mapper.Map<ChatInfoDto>(newChat));
+			}
+			
+			[Authorize(Roles = "admin", Policy = "ChatsTokenPolicy")]
+			[HttpDelete]
+			public async Task<IActionResult> DeleteChat([FromBody] DeleteChatRequest toDelete)
+			{
+				Chat? chat = await dbContext.Chats.FindAsync(toDelete.ChatId);
+				
+				if (chat == null)
+				{
+					return NotFound();
+				}
+				
+				dbContext.Chats.Remove(chat);
+				
+				await dbContext.SaveChangesAsync();
+				
+				return Ok();
+			}
+			
+			
+			[Authorize]
+			[HttpGet("{id:int}")]
+			public async Task<IActionResult> GetChatInfo(int id)
+			{
+				var chat = await dbContext.Chats.FindAsync(id);
+				
+				if (chat == null)
+				{
+					return NotFound();
+				}
+				
+				
+				return Ok(mapper.Map<ChatInfoDto>(chat));
+			}
+		}
+		
+	}
+\end{lstlisting}
+
+SignUpPage.tsx
+\begin{lstlisting}[language=javascript]
+	'use client'
+	
+	import { UserInfo } from "@/models/userInfo";
+	import axios from "axios";
+	import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+	import { useRouter } from "next/navigation";
+	import { ReactNode } from "react";
+	import * as Yup from 'yup';
+	
+	const authUrl = process.env.NEXT_PUBLIC_AUTH_URL;
+	
+	type SignUpValues= {
+		login: string, 
+		password: string,
+		confirmPassword: string,
+		general?: string
+	};
+	
+	const schema = Yup.object().shape({
+		login: Yup.string()
+		.min(8, "Имя пользователя должно содержать не менее 8 символов")
+		.max(32, "Имя пользователя должно содержать не более 32 символов")
+		.required("Введите имя пользователя"),
+		password: Yup.string()
+		.min(8, "Пароль должен содержать не менее 8 символов")
+		.max(64, "Пароль должен содержать не более 64 символов")
+		.required("Введите пароль"),
+		confirmPassword: Yup.string()
+		.oneOf([Yup.ref('password')], "Пароли должны совпадать")
+		.required("Подтвердите свой пароль")
+	});
+	
+	export default function SignUpPage(){
+		const router = useRouter();
+		
+		const initialValues = {
+			login: "",
+			password: "",
+			confirmPassword: ""
+		};
+		
+		const handleOnSubmit = async ({ login, password }:SignUpValues,
+		{ setSubmitting, setErrors }: FormikHelpers<SignUpValues>
+		) => {
+			try{
+				const {headers} = await axios.post<UserInfo>(`${authUrl}/Auth/signup`, {login, password})
+				
+				localStorage.setItem("Access-Token", headers["authorization"]);
+				
+				router.push("/main");
+			}
+			catch(error){
+				if (axios.isAxiosError(error)){
+					if (error.response?.status == 409){
+						setErrors({login: "Пользователь с таким логином уже существует"})
+					}
+					if(error.response?.status == 500){
+						setErrors({general: "Произошла неизвестная ошибка. Попробуйте еще раз"})
+					}
+				}
+			}
+			finally{
+				setSubmitting(false);
+			}
+		}
+		
+		return (
+		<div className="flex flex-grow-0 flex-col-reverse md:flex-row justify-between items-center md:rounded-2xl md:max-w-min md:min-h-max shadow-[0px_20px_20px_10px_#00000024] overflow-hidden">
+		<div className="flex flex-col items-center justify-center text-center self-stretch m-4">
+		<h3 className="text-2xl font-bold md:text-nowrap text-gray-700 mb-4 block">Уже зарегистрированы?</h3>
+		<p className="block mb-4">Войдите в свой аккаунт, чтобы продолжить общение</p>
+		<a href="/signin" className="w-full p-3 bg-blue-500 text-white rounded-lg border-2 border-white max-w-32 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400">
+		Войти
+		</a>
+		</div>
+		<div className="flex flex-grow-0 justify-center bg-sky-500">
+		<div className="flex flex-col items-center text-center m-4 min-h-full">
+		<h3 className="text-3xl md:text-nowrap font-bold text-gray-700 mb-4" >Присоединяйтесь к нам!</h3>
+		<Formik initialValues={initialValues}
+		validationSchema={schema}
+		onSubmit={handleOnSubmit}
+		>
+		{({isSubmitting, errors, isValid}) => (
+			<Form className="flex flex-col items-center min-h-max">
+			<div className="mb-4">
+			<Field
+			type="text"
+			name="login"
+			placeholder="Имя пользователя"
+			className="p-3 border md:w-[250px] border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+			/>
+			<ErrorMessage component={ErrorTemplate} name="login" />
+			</div>
+			<div className="mb-4">
+			<Field
+			type="password"
+			name="password"
+			placeholder="Пароль"
+			className="md:w-[250px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+			/>
+			<ErrorMessage component={ErrorTemplate} name="password" />
+			</div>
+			<div className="mb-6">
+			<Field
+			type="password"
+			name="confirmPassword"
+			placeholder="Повторите пароль"
+			className="md:w-[250px] p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+			/>
+			<div>
+			<ErrorMessage name="confirmPassword" />
+			</div>
+			</div>
+			<button
+			type="submit"
+			disabled={isSubmitting || !isValid}
+			className="w-fit py-3 px-3 bg-blue-500 text-white rounded-lg border-2 border-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+			>
+			{isSubmitting == true ? "Регистрируем вас..." : "Зарегистрироваться"}
+			</button>
+			<div>
+			{errors.general && <p className="text-center text-wrap">{errors.general}</p>}
+			</div>
+			</Form>
+			)}
+		</Formik>
+		</div>
+		</div>
+		</div>
+		);
+	};
+	
+	function ErrorTemplate({children}:{children?: ReactNode}){
+		return(
+		<div className="text-center break-words max-w-full text-sm">
+		<p>{children}</p>
+		</div>
+		)
+	}
+\end{lstlisting}
+
+ChatRoom.tsx
+\begin{lstlisting}[language=javascript]
+	import { useSelectedChatContext } from "@/context/selectedChatContext";
+	import Image from "next/image";
+	import noChatPlaceholder from "../../public/img/no-chat.png";
+	import { IconDotsVertical, IconFileUpload, IconSend2 } from "@tabler/icons-react";
+	import { useEffect, useRef, useState } from "react";
+	import axios, { AxiosRequestConfig } from "axios";
+	import { Chat } from "@/models/chat";
+	import Messages from "./Messages";
+	import { Spinner } from "./Spinner";
+	import { Modal } from "./Modal";
+	import { HubConnectionBuilder } from "@microsoft/signalr";
+	import { useChatContext, useChatContextProvider } from "@/context/chatContext";
+	import { decodeToken } from "@/utils/decodeToken";
+	import { ChatUser } from "@/models/chatUser";
+	import { useHubConnectionContext } from "@/context/hubConnectionContext";
+	import { Field, Form, Formik, FormikHelpers, FormikValues } from "formik";
+	import jwtClient from "jwt-client"; 
+	import { jwtDecode } from "jwt-decode";
+	
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+	const authUrl = process.env.NEXT_PUBLIC_AUTH_URL;
+	
+	type ChatProps = {
+		title: string
+	};
+	
+	type MessageFormValues = {
+		message: string
+	};
+	
+	export default function ChatRoom(){
+		const {chatId} = useSelectedChatContext();
+		const [chat, setChat] = useState<ChatUser>();
+		const [chatInfo, setChatInfo] = useState<Chat>();
+		const ChatProvider = useChatContextProvider();
+		
+		useEffect(() =>{
+			axios.get<Chat>(`${apiUrl}/Chats/${chatId}`, {
+				headers: {
+					"Authorization" : localStorage.getItem(`Access-Token`)
+				}, 
+				withCredentials: true
+			}).then((res) => {
+				setChatInfo(res.data)
+			})
+		}, [chat]);
+		
+		useEffect(() =>{
+			if (!chatId){
+				return;
+			}
+			
+			axios.get<ChatUser>(`${authUrl}/Tokens/chat-token/${chatId}`, {
+				withCredentials: true,
+				headers: {
+					"Authorization": localStorage.getItem("Refresh-Token")
+				}
+			})
+			.then((res) => {
+				const chatToken: string = res.headers["authorization"];
+				localStorage.setItem(`Chat-Token-${chatId}`, chatToken);
+				
+				setChat(res.data);
+				
+			}).catch((reason) => console.log(reason));
+			
+		}, [chatId]);
+		
+		if (!chatId){
+			return <NoChat/>
+		}
+		
+		if (!chatInfo){
+			return <Spinner text="Загружаем данные чата..."/>
+		}
+		
+		if (chatInfo){
+			return (
+			<ChatProvider value={chat!}>
+			<Chat title={chatInfo.title}/>
+			</ChatProvider>
+			)
+		}
+	}
+	
+	function Chat({title}:ChatProps){
+		const [active, setActive] = useState(false);
+		const chatId = useSelectedChatContext();
+		
+		const initValues = {
+			message: ""
+		}
+		
+		const handleOnSubmit = async ({message}:MessageFormValues) => {
+			await axios.post(`${apiUrl}/Chat/send-message`, {
+				content: message
+			}, {
+				withCredentials: true,
+				headers: {
+					"Authorization": localStorage.getItem("Access-Token")
+				}
+			})
+		}
+		
+		return(
+		<div className="flex flex-col w-full h-full">
+		<div className="flex flex-col p-4 justify-center items-center w-full h-full">
+		<div className="flex items-center justify-center w-full border-slate-300 border-b border-solid pb-2">
+		<div className="flex text-center bg-sky-700 py-2 px-4 text-white rounded-lg">
+		<p>{title}</p>
+		<button onClick={() => setActive(true)}><IconDotsVertical/></button>
+		</div>
+		</div>
+		<Messages/>
+		<div className="flex gap-1 justify-between max-h-min w-full items-center"> {/* Добавлено items-center */}
+		<button className="flex items-center w-max h-full"><IconFileUpload className="h-10 w-10" /></button> {/* Добавлено items-center и h-full */}
+		<Formik initialValues={initValues} 
+		onSubmit={handleOnSubmit}>
+		<Form className="flex w-full items-center gap-1">
+		<Field 
+		name="message"
+		as="textarea"
+		className="block border-[1px] border-slate-500 border-solid min-w-[70%] rounded-xl flex-grow"
+		/> 
+		<button className="h-full w-max flex items-center" type="submit"><IconSend2 className="h-10 w-10" /></button> 
+		</Form>
+		</Formik>
+		</div>
+		</div>
+		<Modal active={active} setActive={setActive}>
+		<p>ggdggh</p>
+		</Modal>
+		</div>
+		)
+	}
+	
+	function NoChat(){
+		return(
+		<div className="flex flex-col justify-center items-center text-center h-full w-full">
+		<Image src={noChatPlaceholder} alt="Выберите чат" width={100} objectFit="cover"/>
+		<p>Выберите чат из списка или создайте новый, чтобы начать общение</p>
+		</div>  
+		);
+	}	
+\end{lstlisting}
+
+AppNavigation.tsx
+\begin{lstlisting}[language=javascript]
+	'use client'
+	
+	import Link from "next/link"
+	import { useEffect, useState } from "react"
+	import { fetcher } from "@/fetches";
+	import useSWR from "swr";
+	import { Chat } from "@/models/chat";
+	import { IconCheck, IconSearch, IconSquareRoundedPlus, IconUser, IconX } from "@tabler/icons-react";
+	import { AxiosRequestConfig } from "axios";
+	import Image from "next/image";
+	import chatPlaceholder  from "../../public/img/chat.png";
+	import { useSelectedChatContext } from "@/context/selectedChatContext";
+	import { Spinner } from "./Spinner";
+	import { Invitation } from "@/models/invitation";
+	import { Modal } from "./Modal";
+	import { UserCabinet } from "./UserCabinet";
+	import { NewChat } from "./NewChat";
+	
+	const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+	
+	type Tabs = "chats" | "invitations";
+	
+	type ChatListProps = { chats: Chat[] };
+	type AppNavigationHeaderProps = { setTab: (tab: Tabs) => void, tab:  Tabs};
+	
+	export default function AppNavigation(){
+		const [tab, setTab] = useState<Tabs>("chats");
+		
+		return(
+		<div className="flex flex-col border-r-[1px] border-slate-300 border-solid min-w-[33%]">
+		<AppNavigationHeader setTab={setTab} tab={tab}/>
+		<div className="w-[100%]">
+		{tab == "chats" ? <ChatList /> : <InvitationList/>}
+		</div>
+		</div>
+		)
+	}
+	
+	function AppNavigationHeader({setTab, tab}:AppNavigationHeaderProps){
+		const [cabinetActive, setCabinetActive] = useState<boolean>(false);
+		const [newChatActive, setNewChatActive] = useState<boolean>(false);
+		
+		const activeTabStyle = "bg-sky-700 rounded-t-lg p-2 w-[40%]";
+		
+		return(
+		<div>
+		<div className="flex flex-col pt-4 space-y-4 text-white bg-sky-600">
+		<div className="flex justify-around">
+		<button onClick={() => setCabinetActive(true)}><IconUser/></button>
+		<button onClick={() => setNewChatActive(true)}><IconSquareRoundedPlus/></button>
+		<button><IconSearch/></button>
+		</div >
+		<div className="flex justify-center mx-4">
+		<button onClick={() => setTab("chats")} className={tab == "chats" ? activeTabStyle : " w-[40%]"}>Чаты</button>
+		<button onClick={() => setTab("invitations")} className={tab == "invitations" ? activeTabStyle : " w-[40%]"}>Приглашения</button>
+		</div>
+		</div>
+		<div className={cabinetActive ? "w-[100vw] h-[100vh]" : "hidden"}>
+		<Modal active={cabinetActive} setActive={setCabinetActive}>
+		<UserCabinet />
+		</Modal>
+		</div>
+		<div className={newChatActive ? "w-[100vw] h-[100vh]" : "hidden"}>
+		<Modal active={newChatActive} setActive={setNewChatActive}>
+		<NewChat />
+		</Modal>
+		</div>
+		</div>
+		
+		
+		);
+		
+	}
+	
+	function InvitationList(){
+		const {data, error, isLoading} = useSWR<Invitation[], any, {url: string, params: AxiosRequestConfig}>({
+			url: `${apiUrl}/User/invitations`, 
+			params: {
+				method: "GET",
+				headers:{
+					"Authorization": `${localStorage.getItem("Access-Token")}`,
+					"Content-Type": "application/json"
+				},
+				withCredentials: true
+			}
+		}, ({url, params}) => fetcher(url, params));
+		
+		if (isLoading){
+			return <Spinner text="Загружаем приглашения..." />
+		}
+		
+		return(
+		<div className="bg-sky-700 text-white max-h-full overflow-y-scroll min-w-full">
+		{
+			data?.map((item) => {
+				return <InvitationEntry chatId={item.chatId} chatName={item.chatName} />
+			})
+		}
+		</div>
+		)
+	}
+	
+	function InvitationEntry({chatId, chatName}:Invitation){
+		return(
+		<div className="flex flex-col border-b-[1px] space-x-4 border-solid border-slate-300/50 p-2 mx-2 h-min  hover:bg-sky-900 hover:rounded-md hover:mx-0">
+		<p>Принять приглашениие в чат {chatName}?</p>
+		<div className="flex justify-start gap-3">
+		<button>
+		<IconCheck/>
+		</button>
+		<button>
+		<IconX/>
+		</button>
+		</div>
+		</div>
+		)
+	}
+	
+	function ChatList(){
+		const { data, error, isLoading } = useSWR<Chat[], any, {url: string, params: AxiosRequestConfig}>({
+			url: `${apiUrl}/User/chats`, 
+			params: {
+				method: "GET",
+				headers:{
+					"Authorization": `${localStorage.getItem("Access-Token")}`,
+					"Content-Type": "application/json"
+				},
+				withCredentials: true
+			}
+		}, ({url, params}) => fetcher(url, params));
+		
+		if (isLoading){
+			return(
+			<Spinner text="Загружаем чаты..."/>
+			)
+		}
+		
+		if (data){
+			console.log(data);
+		}
+		
+		if (error){
+			<p>{error}</p>
+		}
+		
+		return(
+		<div className="bg-sky-700 text-white max-h-full overflow-y-scroll min-w-[100%]">
+		{
+			data?.map(chat => <ChatEntry 
+			chatId={chat.chatId}
+			title={chat.title}
+			created={chat.created} />)
+		}
+		</div>
+		);
+	}
+	
+	function ChatEntry({chatId, title, created}:Chat){
+		const {setChatId} = useSelectedChatContext();
+		
+		const creationDate = new Date(created);
+		
+		return(
+		<div className="flex border-b-[1px] space-x-4 border-solid border-slate-300/50 p-2 mx-2 h-min  hover:bg-sky-900 hover:rounded-md hover:mx-0"
+		onClick={() => setChatId(chatId)}>
+		<div className="rounded-[50%] max-w-[50px] max-h-min overflow-hidden">
+		<Image src={chatPlaceholder} alt="w" objectFit="cover" />
+		</div>
+		<div className="flex flex-col">
+		<h3>{title}</h3>
+		<h2>Создан {creationDate.toLocaleString("ru-RU", {
+				year: "numeric",
+				month: "long",
+				day: "numeric"
+			})}</h2>
+		</div>
+		</div>
+		);
+		
+	}
+\end{lstlisting}
+
+\ifВКР{
+\newpage
+\addcontentsline{toc}{section}{На отдельных листах (CD-RW в прикрепленном конверте)}
+\begin{center}
+\textbf{Место для диска}
+\end{center}
+}\fi

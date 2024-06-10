@@ -1,0 +1,11 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ba17cd35_002D4cd2_002D41a7_002Dbaff_002D17ee71c6dea5/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="JwtServiceTests" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::1E99B1C2-5F52-4C23-8AA9-EF2CAC65545B::net8.0::JwtServiceTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=e68f7d5a_002D2707_002D4de4_002Dbc88_002D9278b4e4bccc/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetAccessToken_ReturnsAccessToken" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::1E99B1C2-5F52-4C23-8AA9-EF2CAC65545B::net8.0::JwtServiceTests.GetAccessToken_ReturnsAccessToken&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

@@ -1,0 +1,13 @@
+.custom-scrollbar::-webkit-scrollbar {
+    width: 12px; /* Ширина скроллбара */
+}
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent; /* Цвет трека скроллбара */
+}
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #888; /* Цвет ползунка скроллбара */
+    border-radius: 10px; /* Радиус скругления углов */
+}
+  

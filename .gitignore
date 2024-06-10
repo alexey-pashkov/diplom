@@ -1,0 +1,16 @@
+*~
+*.aux
+*.pdf
+*.dvi
+*.log
+*.toc
+*.out
+src/chat-frontend/.next/
+src/chat-frontend/.vscode/
+src/chat-frontend/node_modules/
+src/chat-backend/.vscode/
+src/chat-backend/bin/
+src/chat-backend/obj/
+src/chat-auth-service/.vscode/
+src/chat-auth-service/bin/
+src/chat-auth-service/obj/
