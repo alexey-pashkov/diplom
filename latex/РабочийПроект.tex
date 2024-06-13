@@ -3,6 +3,8 @@
 \subsubsection{Описание классов сервиса аутентификации}
 \paragraph{Описание класса AuthController}
 
+Данный контроллер отвечает за регистрацию и авторизацию пользователей, а также за инвалидацию токенов, выданных пользователю, после выхода из приложения.
+
 Описание полей и методов класса AuthController представлено в таблицах \ref{classAuthFields:table} и \ref{classAuthMethods:table} соответственно.
 
 \renewcommand{\arraystretch}{0.8} % уменьшение расстояний до сетки таблицы
@@ -26,8 +28,7 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classAuthMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название поля & \centrow Область видимости & \centrow Описание \\ \hline
-	\endhead
+	\finishhead
 	SignUp & public & Действие контроллера, отвечающее за регистрацию пользователей \\ \hline
 	SignIn & public & Действие контроллера, отвечающее за авторизацию пользователей \\ \hline
 \end{xltabular}
@@ -35,6 +36,8 @@
 \renewcommand{\arraystretch}{1.0}
 
 \paragraph{Описание класса TokensController}
+
+Данный коетроллер отвечает за выдачу токенов чатов и обновление токенов доступа приложения.
 
 Описание полей и методов класса TokensController представлено в таблицах \ref{classTokensFields:table} и \ref{classTokensMethods:table} соответственно.
 
@@ -59,8 +62,7 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classTokensMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название поля & \centrow Область видимости & \centrow Описание \\ \hline
-	\endhead
+	\finishhead
 	GetChatToken & public & Действие контроллера, отвечающее за выдачу токенов конкретного чата \\ \hline
 	RefreshAccessToken & public & Действие контроллера, отвечающее за обновление токена доступа \\ \hline
 	RefreshChatToken & public & Действие контроллера, отвечающее за обновление токенов чатов \\ \hline
@@ -69,6 +71,8 @@
 \renewcommand{\arraystretch}{1.0}
 
 \paragraph{Описание класса JwtService}
+
+Данный класс отвечает за непосредственную генерацию jwt-токенов. Данный класс используется в контроллере регистрации и авторизации и контроллере токенов.
 
 Описание полей и методов класса JwtService представлено в таблицах \ref{classJwtFields:table} и \ref{classJwtMethods:table} соответственно.
 
@@ -92,8 +96,7 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classJwtMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название поля & \centrow Область видимости & \centrow Описание \\ \hline
-	\endhead
+	\finishhead
 	GetAccessToken & public & Метод, отвечающий за генерацию токенов доступа \\ \hline
 	GetRefreshToken & public & Метод, отвечающий за генерацию токенов обновления \\ \hline
 	GetChatToken & public & Метод, отвечающий за генерацию токенов чатов \\ \hline
@@ -104,6 +107,8 @@
 \subsubsection{Описание классов приложения}
 
 \paragraph{Описание класса ChatController}
+
+Данный контроллер отвечает за функционал конкретного чата, т. е. отправку сообщений в этот чат, добавление и удаление пользователей, приглашение пользователей в чат и т.д.
 
 Описание полей и методов класса ChatController представлено в таблицах \ref{classChatFields:table} и \ref{classChatMethods:table} соответственно.
 
@@ -128,8 +133,7 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classChatMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название метода & \centrow Область видимости & \centrow Описание \\ \hline
-	\endhead
+	\finishhead
 	SendMessage & public & Метод, отвечающий за отправку сообщения в чат \\ \hline
 	DeleteMessage & public & Метод, отвечающий за удаление сообщения из чата \\ \hline
 	GetMessages & public & Метод, возвращающий все сообщения чата \\ \hline
@@ -140,6 +144,8 @@
 \renewcommand{\arraystretch}{1.0}
 
 \paragraph{Описание класса ChatsController}
+
+Данный контроллер отвечает за управление всеми чатами, т. е. создание нового чата, удаление чата, обновление информации о чате и т.д.
 
 Описание полей и методов класса ChastController представлено в таблицах \ref{classChatsFields:table} и \ref{classChatsMethods:table} соответственно.
 
@@ -163,8 +169,7 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classChatsMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название метода & \centrow Область видимости & \centrow Описание \\ \hline
-	\endhead
+	\finishhead
 	AddNewChat & public & Метод, отвечающий за добавление нового чата \\ \hline
 	DeleteChat & public & Метод, отвечающий за удаление чата \\ \hline
 	UpdateChat & public & Метод, отвечающий за обновлении информации о чате \\ \hline
@@ -173,6 +178,8 @@
 \renewcommand{\arraystretch}{1.0}
 
 \paragraph{Описание класса UserController}
+
+Данный контроллер отвечает за доступ к данным конкретного пользователя. 
 
 Описание полей и методов класса UserController представлено в таблицах \ref{classUserFields:table} и \ref{classUserMethods:table} соответственно.
 
@@ -196,15 +203,16 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classUserMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название метода & \centrow Область видимости & \centrow Описание \\ \hline
-	\endhead
+	\finishhead
 	GetUserChats & public & Метод, отвечающий за получение чатов, в которых состоит пользователь \\ \hline
 	GetUserInvitations & public & Метод, отвечающий за получение приглашений пользователя в чаты \\ \hline
 \end{xltabular}
 
 \renewcommand{\arraystretch}{1.0}
 
-\paragraph{Описание класса UserController}
+\paragraph{Описание класса UsersController}
+
+Данный контроллер отвечает за управление всем пользователями, т. е. получение информации о пользователе, удаление пользователя из приложения и т. д.
 
 Описание полей и методов класса UsersController представлено в таблицах \ref{classUsersFields:table} и \ref{classUsersMethods:table} соответственно.
 
@@ -228,7 +236,6 @@
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{classUsersMethods:table}}
 	\hline \centrow 1 & \centrow 2 & \centrow 3 \\ \hline
-	\hline \centrow Название метода & \centrow Область видимости & \centrow Описание \\ \hline
 	\finishhead
 	DeleteUser & public & Метод, отвечающий за удаление пользователя \\ \hline
 	UpdateUser & public & Метод, отвечающий за обновление данных пользователя \\ \hline
@@ -238,9 +245,173 @@
 
 \subsection{Тестирование программной системы}
 
+\subsubsection{Модульное тестирование}
+
+Для проверки работоспособности отдельных модулей программной системы было проведено модульное тестирование.
+
+Модульное тестирование — это метод проверки программного обеспечения, при котором отдельные модули или компоненты тестируются независимо от остальных частей системы. Основная цель модульных тестов — убедиться в корректности работы каждого отдельного блока кода программы. Тесты позволяют выявлять ошибки и недочеты на ранних стадиях разработки, обеспечивая уверенность в стабильности и надежности программного продукта. Автоматизированные модульные тесты выполняются быстро и могут быть запущены в любой среде, что делает процесс тестирования более эффективным и повышает общее качество кода.
+
+На рисунке \ref{unitGetChatToken:image} представлен модульный тест метода GetChatToken класса TokensController.
+
+\begin{figure}[H]
+	\begin{lstlisting}
+		[Fact]
+		public async Task GetChatToken_ReturnsUnauthorized_WhenUserChatNotFound()
+		{
+			// Arrange
+			int userId = 1;
+			int chatId = 1;
+			var user = new User { UserId = userId };
+			
+			dbContextMock.Setup(db => db.Users.FindAsync(userId)).ReturnsAsync(user);
+			dbContextMock.Setup(db => db.UsersInChats.SingleOrDefault(It.IsAny<Func<UsersInChat, bool>>())).Returns((UsersInChat)null);
+			
+			var controller = new TokensController(dbContextMock.Object, jwtServiceMock.Object);
+			controller.ControllerContext.HttpContext = httpContext;
+			
+			// Act
+			var result = await controller.GetChatToken(chatId);
+			
+			// Assert
+			Assert.IsType<UnauthorizedResult>(result);
+		}
+	\end{lstlisting}
+	\caption{Модульный тест метода GetChatToken класса TokensController}
+	\label{unitGetChatToken:image}
+\end{figure}
+
+На рисунке \ref{unitRefreshAccessToken:image} представлен модульный тест метода RefreshAccessToken класса TokensController.
+
+\begin{figure}[H]
+	\begin{lstlisting}
+		[Fact]
+		public async Task RefreshAccessToken_ReturnsNoContentResult()
+		{
+			// Arrange
+			int userId = 1;
+			var user = new User { UserId = userId, Login = "testuser" };
+			
+			dbContextMock.Setup(db => db.Users.FindAsync(userId)).ReturnsAsync(user);
+			
+			string fakeToken = "Bearer fakeToken";
+			jwtServiceMock.Setup(jwt => jwt.GetAccessToken(userId, user.Login)).Returns(fakeToken);
+			
+			var controller = new TokensController(dbContextMock.Object, jwtServiceMock.Object);
+			controller.ControllerContext.HttpContext = httpContext;
+			
+			// Act
+			var result = await controller.RefreshAccessToken();
+			
+			// Assert
+			var noContentResult = Assert.IsType<NoContentResult>(result);
+			Assert.Equal(fakeToken, httpContext.Response.Headers["Authorization"]);
+		}
+	\end{lstlisting}
+	\caption{Модульный тест метода RefreshAccessToken класса TokensController}
+	\label{unitRefreshAccessToken:image}
+\end{figure}
+
+На рисунке \ref{unitRefreshChatToken:image} представлен модульный тест метода RefreshChatToken класса TokensController.
+
+\begin{figure}[H]
+	\begin{lstlisting}
+		[Fact]
+		public async Task RefreshAccessToken_ReturnsNoContentResult()
+		{
+			// Arrange
+			int userId = 1;
+			var user = new User { UserId = userId, Login = "testuser" };
+			
+			dbContextMock.Setup(db => db.Users.FindAsync(userId)).ReturnsAsync(user);
+			
+			string fakeToken = "Bearer fakeToken";
+			jwtServiceMock.Setup(jwt => jwt.GetAccessToken(userId, user.Login)).Returns(fakeToken);
+			
+			var controller = new TokensController(dbContextMock.Object, jwtServiceMock.Object);
+			controller.ControllerContext.HttpContext = httpContext;
+			
+			// Act
+			var result = await controller.RefreshAccessToken();
+			
+			// Assert
+			var noContentResult = Assert.IsType<NoContentResult>(result);
+			Assert.Equal(fakeToken, httpContext.Response.Headers["Authorization"]);
+		}
+	\end{lstlisting}
+	\caption{Модульный тест метода RefreshAccessToken класса TokensController}
+	\label{unitRefreshChatToken:image}
+\end{figure}
+
+На рисунке \ref{unitGetUserChats:image} представлен модульный тест метода GetUserChats класса UserController.
+
+\begin{figure}[H]
+	\begin{lstlisting}
+		[Fact]
+		public async Task GetUserChats_ReturnsNotFound_WhenUserDoesNotExist()
+		{
+			// Arrange
+			dbContextMock.Setup(db => db.Users.FindAsync(1)).ReturnsAsync((User)null);
+			
+			var controller = new UserController(dbContextMock.Object, mapperMock.Object);
+			controller.ControllerContext.HttpContext = httpContext;
+			
+			// Act
+			var result = await controller.GetUserChats();
+			
+			// Assert
+			Assert.IsType<NotFoundResult>(result);
+		}
+	\end{lstlisting}
+	\caption{Модульный тест метода GetUserChats класса UserController}
+	\label{unitGetUserChats:image}
+\end{figure}
+
+На рисунке \ref{unitAddNewChat:image} представлен модульный тест метода AddNewChat класса ChatsController.
+
+\begin{figure}[H]
+	\begin{lstlisting}
+		[Fact]
+		public async Task AddNewChat_ReturnsOkResult_WithChatInfo()
+		{
+			// Arrange
+			var newChatRequest = new NewChatRequest { ChatName = "New Chat" };
+			var newChat = new Chat { ChatId = 1, Name = "New Chat", CreationDate = DateOnly.FromDateTime(DateTime.Now) };
+			var user = new User { UserId = 1, Login = "testuser" };
+			var chatInfoDto = new ChatInfoDto { ChatId = 1, Name = "New Chat" };
+			
+			dbContextMock.Setup(db => db.Users.FindAsync(1)).ReturnsAsync(user);
+			dbContextMock.Setup(db => db.Chats.AddAsync(It.IsAny<Chat>(), default)).Callback<Chat, System.Threading.CancellationToken>((chat, token) => chat.ChatId = newChat.ChatId).ReturnsAsync(new Chat());
+			dbContextMock.Setup(db => db.SaveChangesAsync(default)).ReturnsAsync(1);
+			dbContextMock.Setup(db => db.UsersInChats.AddAsync(It.IsAny<UsersInChats>(), default)).ReturnsAsync(new UsersInChats());
+			
+			mapperMock.Setup(m => m.Map<ChatInfoDto>(It.IsAny<Chat>())).Returns(chatInfoDto);
+			
+			var controller = new ChatsController(dbContextMock.Object, mapperMock.Object);
+			controller.ControllerContext.HttpContext = httpContext;
+			
+			// Act
+			var result = await controller.AddNewChat(newChatRequest);
+			
+			// Assert
+			var okResult = Assert.IsType<OkObjectResult>(result);
+			var model = Assert.IsType<ChatInfoDto>(okResult.Value);
+			Assert.Equal(chatInfoDto.ChatId, model.ChatId);
+			Assert.Equal(chatInfoDto.Name, model.Name);
+			
+			dbContextMock.Verify(db => db.Chats.AddAsync(It.IsAny<Chat>(), default), Times.Once);
+			dbContextMock.Verify(db => db.SaveChangesAsync(default), Times.Exactly(2));
+			dbContextMock.Verify(db => db.UsersInChats.AddAsync(It.IsAny<UsersInChats>(), default), Times.Once);
+		}
+	\end{lstlisting}
+	\caption{Модульный тест метода AddNewChat класса ChatsController}
+	\label{unitAddNewChat:image}
+\end{figure}
+
 \subsubsection{Системное тестирование}
 
-Для проверки работоспособности разработанной программной системы было произведено системное тестирование приложения. На нижеприведенных рисунках представлены результаты тестирования системы.
+Для проверки корректного взаимодействия модулей программнгой системы было проведено системное тестированиие. 
+
+Системное тестирование — это такой вид тестирования программного обеспечения, на котором проверяется работа всей системы в целом. Его цель — убедиться, что все компоненты приложения правильно интегрированы и функционируют вместе, как ожидается. Системное тестирование включает проверку функциональных требований, производительности, безопасности, совместимости и других аспектов. Этот вид тестирования проводится в окружении, максимально приближенном к реальному, чтобы выявить и исправить возможные дефекты до выпуска продукта пользователям.
 
 Произведем тестирование функционала регистрации в приложении. Для этого необходимо ввести данные для регистрациии и нажать кнопку "<Зарегистрироваться">. После регистрации пользователь должен быть перенаправлен на основную страницу приложения. Результаты тестирования данного функционала представлены на рисунках \ref{signup_test1:image}-\ref{signup_test3:image}. 
 

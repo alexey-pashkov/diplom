@@ -37,6 +37,13 @@ JavaScript – это интерпретируемый язык программ
 
 Next.js также предлагает удобное управление маршрутизацией, что делает процесс навигации в приложении простым и интуитивно понятным. В отличие от некоторых других фреймворков, маршрутизация в Next.js базируется на файловой системе, что означает, что структура папок и файлов в проекте определяет маршруты приложения. Это упрощает настройку и поддержку маршрутизации, особенно в крупных проектах.
 
+\subsubsection{JSON Web Token}
+
+Для обеспечения авутентификации и авторизации пользователей в программной системе используется технология JSON Web Tokens (JWT).
+
+JWT (JSON Web Token) — это открытый стандарт (RFC 7519) для создания токенов, используемых для передачи информации между участниками. Токены формируются в виде компактного, URL-безопасного JSON-объекта, который может быть подписан с помощью алгоритма HMAC или асимметричной криптографии (например, RSA). JWT состоит из трех частей: заголовка (header), полезной нагрузки (payload) и подписи (signature). Заголовок определяет тип токена и алгоритм шифрования, полезная нагрузка содержит утверждения (claims), такие как идентификация пользователя или срок действия токена, а подпись обеспечивает целостность и подлинность токена. Основное применение JWT — аутентификация и авторизация в веб-приложениях, где токены используются для передачи проверенных данных между клиентом и сервером, обеспечивая безопасный и эффективный способ управления доступом к ресурсам.
+
+
 \subsection{Проектирование архитекуры программной систмеы}
 
 \subsubsection{Компоненты разрабатываемой системы}
@@ -84,10 +91,10 @@ Next.js также предлагает удобное управление ма
 
 \begin{itemize}
 	\item ChatDbContext - класс, обеспечивающий связь моделей и БД чс Entity Framework. Также описывает правила созания объеков моделей из таблиц БД;
-	\item Chat - модель, представляющая собой отображение данных чата.
+	\item Chat - модель, представляющая собой отображение данных чата;
 	\item Media - модель, представляющая собой отображение медиа-файла;
 	\item MediaType - модель, представляющая собой отображение типа медиа-файла;
-	\item Invitation - модель, представляющая собой отображение приглашения в чат.
+	\item Invitation - модель, представляющая собой отображение приглашения в чат;
 	\item Message - модель, представляющая собой отображение данных сообщения;
 	\item User - модель, представляющая собой отображение данных пользователя;
 	\item UserRole - модель, представляющая собой отображение данных типа роли пользователя;
@@ -125,7 +132,7 @@ Next.js также предлагает удобное управление ма
 Разрабатываемое прилложение будет содержать следующие страницы:
 \begin{itemize}
 	\item signup.tsx является представлением для регистрации в приложении;
-	\item signin.tsx является представлением для входа в приложение.
+	\item signin.tsx является представлением для входа в приложение;
 	\item main.tsx (включает в себя комоненты AppNavigation, ChatMenu, ChatRoom, Messages, Modal) является основным представлением приложения. Отображает навигацию по приложению и сам чат;
 	\item user.tsx представление личного кабинета пользователя для управления персональными данными.
 \end{itemize}
@@ -180,7 +187,11 @@ DELETE /Users - маршрут, предназначенный для удале
 
 \subsubsection{Проект данных разрабатываемой системы}
 
-Для организации данных, используемых в разрабатываемой системе, была выбрана реляционная БД PostgreSQL. Был выбран подход Database First\cite{ef}, т. е. сначала разрабатывается схема БД, а затем на ее основе средствами Entity Framework генерируются модели приложения.
+Для организации данных, используемых в разрабатываемой системе, была выбрана реляционная БД PostgreSQL. 
+
+PostgreSQL — это объектно-реляционная система управления базами данных с открытым исходным кодом. Она отличается высокой производительностью, надежностью и масштабируемостью. PostgreSQL поддерживает стандарт SQL и предлагает множество дополнительных возможностей, таких как полнотекстовый поиск, индексирование, транзакции с поддержкой ACID, расширения для различных типов данных, включая JSON и XML. Система активно развивается и поддерживается сообществом, что обеспечивает её актуальность и адаптацию к современным требованиям. PostgreSQL подходит для различных типов приложений, от небольших веб-приложений до крупных корпоративных систем.
+
+Был выбран подход Database First\cite{ef}, т. е. сначала разрабатывается схема БД, а затем на ее основе средствами Entity Framework генерируются модели приложения.
 
 Схема БД состоит из следующих таблиц:
 \begin{itemize}
@@ -196,118 +207,125 @@ DELETE /Users - маршрут, предназначенный для удале
 
 ER-диаграмма БД представлена на рисунке \ref{erd:image}.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\center{\includegraphics[width=1\linewidth]{erd}}
 	\caption{ER-диаграмма базы данных}
 	\label{erd:image}
 \end{figure}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{chats:table} представлены атрибуты сущности "<Чат">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "chats"\label{chats:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\centrow Поле & \centrow Тип & \centrow Обязательное & \centrow Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{chats:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
+	\finishhead
 	chat\_id & integer & да & Идентификатор чата (автоматический) \\ \hline
 	name & character varying(128) & да & Название чата \\ \hline
 	creation\_date & date & да & Дата создания чата \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{invitations:table} представлены атрибуты сущности "<Приглашение">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "invitations"\label{invitations:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\centrow Поле & \centrow Тип &  \centrow Обязательное & \centrow Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{invitations:table}} \centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
-	Поле & Тип & Обязательное & Описание \\ \hline
-	\endhead
+	\finishhead
 	chat\_id & integer & да & Идентификатор чата \\ \hline
 	user\_id & integer & да & Идентификатор приглашемого пользователя \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{messages:table} представлены атрибуты сущности "<Сообщение">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "messages"\label{messages:table}} \hline
 	Поле & Тип & Обязательное & Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{messages:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
+	\finishhead
 	message\_id & integer & да & Идентификатор сообщения (автоматический) \\ \hline
 	user\_id & integer & нет & Идентификатор пользователя (если есть) \\ \hline
 	chat\_id & integer & да & Идентификатор чата \\ \hline
 	content & text & нет & Содержание сообщения \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{media:table} представлены атрибуты сущности "<Медиа">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "media"\label{media:table}} \hline
 	Поле & Тип & Обязательное & Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{media:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
+	\finishhead
 	media\_id & serial & да & Идентификатор медиа (автоматический) \\ \hline
 	location & text & да & Местоположение медиа \\ \hline
 	type & integer & да & Тип медиа \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{media_type:table} представлены атрибуты сущности "<Тип медиа">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "media\_type"\label{media_type:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\centrow Поле & \centrow Тип & \centrow Обязательное & \centrow Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{media_type:table}} \centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
-	Поле & Тип & Обязательное & Описание \\ \hline
-	\endhead
+	\finishhead
 	type\_id & int & да & Идентификатор типа медиа \\ \hline
 	media\_type & character varying(20) & да & Тип медиа \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{users:table} представлены атрибуты сущности "<Пользователь">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "users"\label{users:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\centrow Поле & \centrow Тип & \centrow Обязательное & \centrow Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
 	\continuecaption{Продолжение таблицы \ref{users:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
+	\finishhead
 	user\_id & integer & да & Идентификатор пользователя (автоматический) \\ \hline
 	login & character varying(64) & да & Логин пользователя \\ \hline
 	password\_hash & bytea & да & Хэш пароля пользователя \\ \hline
 	password\_salt & bytea & да & Соль пароля пользователя \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{user_role:table} представлены атрибуты сущности "<Роль пользователя">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "user\_role"\label{user_role:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\centrow Поле & \centrow Тип & \centrow Обязательное & \centrow Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
-	\continuecaption{Продолжение таблицы \ref{user_role:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\continuecaption{Продолжение таблицы \ref{user_role:table}} \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
-	\endhead
+	\finishhead
 	role\_id & integer & да & Идентификатор роли пользователя \\ \hline
 	role\_name & character varying(15) & да & Наименование роли пользователя \\ \hline
 \end{xltabular}
 
-\begin{xltabular}{\textwidth}{|l|l|c|X|}
+В таблице \ref{users_in_chats:table} представлены атрибуты сущности "<Пользователи в чатах">.
+
+\begin{xltabular}{\textwidth}{|X|p{2.5cm}|p{3cm}|>{\setlength{\baselineskip}{0.7\baselineskip}}p{4.83cm}|}
 	\caption{Описание полей таблицы "users\_in\_chats"\label{users_in_chats:table}} \hline
-	Поле & Тип & Обязательное & Описание \\ \hline
+	\centrow Поле & \centrow Тип & \centrow Обязательное & \centrow Описание \\ \hline
 	\centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endfirsthead
-	\continuecaption{Продолжение таблицы \ref{users_in_chats:table}} \centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
+	\continuecaption{Продолжение таблицы \ref{users_in_chats:table}} \hline \centrow 1 & \centrow 2 & \centrow 3 & \centrow 4\\ \hline
 	\endhead
 	Поле & Тип & Обязательное & Описание \\ \hline
-	\endhead
+	\finishhead
 	user\_id & integer & да & Идентификатор пользователя \\ \hline
 	chat\_id & integer & да & Идентификатор чата \\ \hline
 	user\_role & integer & да & Роль пользователя в чате \\ \hline
@@ -317,9 +335,9 @@ ER-диаграмма БД представлена на рисунке \ref{erd
 
 Учитывая требования к пользовательскому интерфейсу, сформированные в пункте технического задания, был разработан интерфейс программной системы. 
 
-Ниже приведены макеты интерфейса десктопной версии. В мобильной версии компоненты такие же как и в десктопной, но размещены с учетом удобства использования на портативных устройствах.
+Ниже приведены макеты интерфейса десктопной версии приложения. В мобильной версии компоненты такие же как и в десктопной, но размещены с учетом удобства использования на портативных устройствах.
 
-На рисунках ниже компоненты интерфейса пронумированны.
+На рисунках ниже компоненты интерфейса пронумированы.
 
 На рисунке \ref{signup_maket:image} представлен макет страницы регистрации. Эта страница содержит следующие компоненты:
 \begin{itemize}
